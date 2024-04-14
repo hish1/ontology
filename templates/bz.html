@@ -1,0 +1,306 @@
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css"/>
+    <title>Динозавры</title>
+
+    {% macro render_menu(selected_button) %}
+        {% set arr2 = ['types', 'features', 'possible_values_sc', 'possible_values_num', 'types_features', 'types_values', 'check'] %}
+        {% set arr1 = ['Классы', 'Признаки', 'Значения_перечислимые', 'Значения_числовые', 'Признаки_классов', 'Значения_признаков_классов', 'Проверка_полноты_знаний'] %}
+        {% for i in range(len(arr1)) %}
+            <div>
+                <form action = '' method ="get">
+                    <input type="hidden" name={{arr2[i]}} value={{selected_button}}>
+                    {% if selected_button == arr2[i] %}
+                        <input type='submit' value={{arr1[i]}} class="selected">
+                    {% else %}
+                        <input type='submit' value={{arr1[i]}}>
+                    {% endif %}
+                </form>
+            </div>
+        {% endfor %}
+    {% endmacro %}
+
+    {% macro render_values(data, str, is_add) %}
+        {% if not data.empty %}
+            <ul type="none" name="{{len(data)}}">
+                {% for i in range(len(data)) %}
+                    <li>
+                        <form action = '' method ="get">
+                            {{ data.loc[i, data.dtypes.index[1]]|string }}
+                            <input type="hidden" name='{{str}}' value={{data.loc[i,data.dtypes.index[0]]|int }}>
+                            <input type="submit" class="btn-delete" {% if is_add %} value="+" {% else %} value="-" {%endif %}>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_values_num(data, str, is_add) %}
+        {% if len(data) != 0 %}
+            <div class="num">
+                {% set a = min(data.loc[1, data.dtypes.index[1]], data.loc[0, data.dtypes.index[1]]) %}
+                {% set b = max(data.loc[1, data.dtypes.index[1]], data.loc[0, data.dtypes.index[1]]) %}
+                <form action = '' method ="get" class="list">
+                    <p>[{{a}}, {{b}}]</p>
+                    <input type="hidden" name='{{str}}' value="{{len(data)}}" >
+                    <input type="submit" class="btn-delete" {% if is_add %} value="+" {% else %} value="-" {%endif %}>
+                </form>
+            </div>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_select(data, id) %}
+        {% for i in range(len(data)) %}
+            {% set n = data.loc[i, data.dtypes.index[0]]|int %}
+            <option id='{{id}}' value='{{n}}' {% if n==id %} selected {% endif %}>
+                {{ data.loc[i, data.dtypes.index[1]]|string }}
+            </option>
+        {% endfor %}
+    {% endmacro %}
+
+    {% macro render_data1(data_types) %}
+        <div class='data1-editor'>
+            <p>Новый класс </p>
+            <form action="" method="get">
+                <input type='text' class="text" name="add_type"/>
+                <input type="submit" value='Добавить'>
+            </form>
+        </div>
+        <div class='data1-list'>
+            <p>Список классов</p>
+            {{ render_values(data_types , 'del_type', False)}}
+        </div>
+    {% endmacro %}
+
+    {% macro render_data2(data_features) %}
+        <div class="data2-editor">
+            <label for="editor" class="data2-label">Новый признак </label>
+            <form action="" method="get" id="editor" class='data2'>
+                <p>Название: </p>
+                <input type='text' id=text class="text" name="add_feature"/>
+
+                <p for="features_selector">Тип: </p>
+                <select class="select-field" name="feature_type" id="features_selector">
+                    <option value=0>Перечисляемый</option>
+                    <option value=1>Числовой</option>
+                </select>
+
+                <input type="submit" class='btn data2-btn' value='Добавить'>
+            </form>
+        </div>
+        <div class='data1-list'>
+            <p>Список признаков</p>
+            {{ render_values(data_features, 'del_feature', False) }}
+        </div>
+    {% endmacro %}
+
+    {% macro render_data3(data_features_sc, feature_sc_id, data_possible_sc) %}
+        {% if feature_sc_id == -1 %}
+            <p>Нет перечислимых признаков</p>
+        {% else %}
+            <div class="data2-editor">
+                <label for="editor" class="data3-label">Новое перечислимое значение </label>
+                <div class="data3">
+                    <form action="" method="get" class='data3-editor'>
+                        <input type="hidden" class="search btn" name='features_sc_select' value="🔎">   
+                        <p>Название: </p>
+                        <select class="select-field" name='features_sc_selector' onchange="this.form.submit()">
+                            {{ render_select(data_features_sc, feature_sc_id) }} 
+                        </select>                                      
+                    </form>
+                    <form action="" method="get" class="data3-form">
+                        <p>Значение: </p>
+                        <input type='text' id=text class="text" name="add_possible_sc"/>
+
+                        <input type="submit" class='btn data3-btn' value='Добавить'>
+                    </form>
+                </div>
+            </div>
+            <div class='data1-list'>
+                <p>Список перечислимых значений</p>
+                {{ render_values(data_possible_sc, 'del_possible_sc', False)}}
+            </div>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_data4(data_features_num, feature_num_id, data_possible_num) %}
+        {% if feature_num_id == -1 %}
+            <p>Нет числовых признаков</p>
+        {% else %}
+            <div class="data2-editor">
+                <label for="editor" class="data3-label">Новое числовое значение </label>
+                <div class="data3">
+                    <form action="" method="get" class='data3-editor'>
+                        <input type="hidden" class="search btn" name='features_num_select' value="🔎">   
+                        <p>Название: </p>
+                        <select class="select-field" name='features_num_selector' onchange="this.form.submit()">
+                            {{ render_select(data_features_num, feature_num_id) }} 
+                        </select>                                      
+                    </form>
+                    <form action="" method="get" class="data3-form">
+                        <p>Значение: 
+                        <input type='hidden' id=text class="text" name="add_possible_num" value="{{feature_num_id}}"/></p>
+                        <div class="data4">
+                            <p>от</p>
+                            <input type='text' id=text class="text" name="num_start"/>
+                            <p>до</p>
+                            <input type='text' id=text class="text" name="num_end"/>
+                        </div>
+                        <input type="submit" class='btn data3-btn disabled' value='Добавить' {% if len(data_possible_num)==2 %} disabled {% endif %}>
+                    </form>
+                </div>
+            </div>
+            <div class='data1-list'>
+                <p>Список числовых значений</p>
+                {{ render_values_num(data_possible_num, 'del_possible_num', False)}}
+            </div>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_data5(data_types, data_features, data_type_features, type_id) %}
+        {% if type_id == -1 %}
+            <p>Нет классов</p>
+        {% else %}
+            <div class="data5">
+                <form action="" method="get" class='data5-editor'>
+                    <input type="hidden" class="search btn" name='class_for_feature_select' value="🔎">   
+                    <p>Выберите_класс: </p>
+                    <select class="select-field" name='types_for_features_selector' onchange="this.form.submit()">
+                        {{ render_select(data_types, type_id) }} 
+                    </select>                                      
+                </form>
+            </div>
+            <div class='data5-list' name="{{type_id}}">
+                {% if len(data_features) == 0 %}
+                    <p>Нет классов</p>
+                {% else %}
+                    <p>Список_признаков</p>
+                    <p>Список_выбранных_признаков</p>
+                    {{ render_values(data_features, 'types_features_add', True) }}
+                    {{ render_values(data_type_features, 'types_features_del', False) }}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_data6(data_types, data_features, data_possible_sc, data_possible_num, data_type_features, data_type_values, type_id, feature_id) %}
+        {% if type_id == -1 %}
+            <p>Нет классов</p>
+        {% else %}
+            <div class="data6">
+                <form action="" method="get" class='data6-type' name="{{type_id}}">
+                    <input type="hidden" class="search btn" name='class_for_value_select' value="🔎">   
+                    <p>Выберите_класс: </p>
+                    <select class="select-field" name='types_for_values_selector' onchange="this.form.submit()">
+                        {{ render_select(data_types, type_id) }} 
+                    </select>                                      
+                </form>
+                {% if feature_id == -1 %}
+                    <p>Нет признаков</p>
+                {% else %}
+                    <form action="" method="get" class='data6-feature' name="{{feature_id}}">
+                        <input type="hidden" class="search btn" name='feature_for_value_select' value="🔎">   
+                        <p>Выберите_признак: </p>
+                        <select class="select-field" name='features_for_values_selector' onchange="this.form.submit()">
+                            {% set d = data_type_features %}
+                            {% for i in range(len(d)) %}
+                                {% set n = d.loc[i, d.dtypes.index[2]]|int %}
+                                <option id='{{feature_id}}' value='{{n}}' {% if n==feature_id %} selected {% endif %}>
+                                    {{ d.loc[i, d.dtypes.index[1]]|string }}
+                                </option>
+                            {% endfor %}
+                        </select>                                      
+                    </form>
+                {% endif %}
+            </div>
+            {% if feature_id == -1 %}
+                    <div></div>
+            {% else %}
+                <div class='data5-list' name="{{len(data_type_values)}}">
+                    <p>Список_значений</p>
+                    <p>Список_выбранных_значений</p>
+
+                    {% if not data_possible_sc.empty or not data_possible_num.empty %}
+                        {{ render_values(data_possible_sc, 'types_values_add', True) }}
+                        {{ render_values_num(data_possible_num, 'types_values_add', True) }}
+                        {% if not data_type_values.empty %}
+                            {% if data_type_values.loc[0, 'type']|int == 1 %}
+                                {{ render_values_num(data_type_values, 'types_values_del', False) }}
+                            {% else %}
+                                {{ render_values(data_type_values, 'types_values_del', False) }}
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <p>Нет значений</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_check(data, str, f) %}
+        {% if data.empty %}
+            <p>Заполнены {{str}}!</p>
+            <p></p>
+        {% else %}
+            <p>Не заполнены {{str}}:</p>
+            <ul type="none">
+                {% for i in range(len(data)) %}
+                    <li>
+                        {% if f %}
+                            {{data.loc[i, data.dtypes.index[0]]|string}}, {{data.loc[i, data.dtypes.index[1]]|string}}
+                        {% else %}
+                            {{data.loc[i, data.dtypes.index[0]]|string}}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_data7(empty_types, empty_features, empty_all) %}
+        <div class="check">
+            {{ render_check(empty_types, 'классы', False) }}
+            {{ render_check(empty_features, 'признаки', False) }}
+            {{ render_check(empty_all, 'описания динозавров', True) }}
+        </div>
+    {% endmacro %}
+
+</head>
+<body>
+    <h1>Редактор базы знаний</h1>
+    <div class="main-section">
+        <div class="main-container">
+            <div class="menu-section">
+                {{ render_menu(selected_button) }}
+            </div>
+            <div class="data-section">
+                {% if selected_button == 'types' %}
+                    {{ render_data1(data_types) }}
+                {% elif selected_button == 'features' %}
+                    {{ render_data2(data_features) }}
+                {% elif selected_button == 'possible_values_sc' %}
+                    {{ render_data3(data_features_sc, feature_sc_id, data_possible_sc) }}
+                {% elif selected_button == 'possible_values_num' %}
+                    {{ render_data4(data_features_num, feature_num_id, data_possible_num) }}
+                {% elif selected_button == 'types_features' %}
+                    {{ render_data5(data_types, data_features, data_type_features, type_id) }}
+                {% elif selected_button == 'types_values' %}
+                    {{ render_data6(data_types, data_features, data_possible_sc, data_possible_num, data_type_features, data_type_values, type_id, feature_id) }}
+                {% elif selected_button == 'check' %}
+                    {{ render_data7(empty_types, empty_features, empty_all) }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <form class="btn2 back" action="{{ url_for('user') }}" method="get">
+        <button type="submit" value='user'
+                            name="user_button">Назад</button>
+    </form>
+</body>
+</html>

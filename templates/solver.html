@@ -1,0 +1,95 @@
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css"/>
+    <title>Динозавры</title>
+
+    {% macro render_select_feature(data_features) %}
+        <div>
+            <p>Выберите_признаки:</p>
+            <form action="" method="get">
+                <input type="hidden" name='get_checkbox'>
+                {% for i in range(len(data_features)) %}
+                    <input type="checkbox" name='checkbox' value="{{data_features.loc[i, 'feature_id']|int}}" checked>
+                {% endfor %}
+                <input type="submit" class="btn-add-2" value="Далее">
+            </form>
+        </div>
+    {% endmacro %}
+
+    {% macro render_select(data, id) %}
+        {% for i in range(len(data)) %}
+            {% set n = data.loc[i, data.dtypes.index[0]]|int %}
+            <option id='{{id}}' value='{{n}}' {% if n==id %} selected {% endif %}>
+                {{ data.loc[i, data.dtypes.index[1]]|string }}
+            </option>
+        {% endfor %}
+    {% endmacro %}
+
+    {% macro render_values(data, str) %}
+        {% if not data.empty %}
+            <form action = '' method ="get">
+                {% for i in range(len(data)) %}
+                    <input type="hidden" name='value_checker' value='{{data.loc[i,data.dtypes.index[0]]|int}}'>
+                    <input type="checkbox" name="{{str}}" value="{{data.loc[i, data.dtypes.index[1]]|string}}">
+                {% endfor %}
+                <input type="submit" value="Сохранить">
+            </form>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_features(data_checked, data_possible_sc, data_possible_num, feature_id) %}
+        <div class="">
+            <div class="">
+                <form action="" method="get" class="">
+                    <p>Признак: </p>
+                    <select name='feature_selector' onchange="this.form.submit()">
+                        {{ render_select(data_checked, feature_id) }}
+                    </select>
+                </form>
+            </div>
+            <div>
+                <p>Список значений</p>
+                {{ render_values(data_possible_sc, 'feature_value_check') }}
+            </div>
+            <div> 
+                <input type="hidden" name="get_result">
+                <input type="submit" value="Результат">
+            </div>
+        </div>
+    {% endmacro %}
+    
+    {% macro render_result(data_all, result) %}
+        <div>
+            <p>Введенные данные:</p>
+            <ul type="none">
+                {% for i in range(data_all|length) %}
+                    <li>{{ list(data.keys())[i] }}: {{ data[i] }}</li>
+                {% endfor %}
+            </ul>
+            <p>Вывод:</p>
+            <p>{{ result }}</p>
+        </div>
+
+    {% endmacro %}
+
+
+</head>
+<body>
+    <h1>Классификатор динозавров</h1>
+    <div class="main-section">
+        {% if len(data_checked) == 0 %}
+            {{ render_select_feature(data_features) }}
+        {% else %}
+            {% if False %}
+                {{ render_result(data_all, result) }}
+            {% else %}
+                {{ render_features(data_checked, data_possible_sc, data_possible_num, feature_id) }}
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

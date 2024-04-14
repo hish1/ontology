@@ -1,0 +1,27 @@
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css"/>
+    <title>Динозавры</title>
+</head>
+<body>
+    <div>
+        <h1>Классификация динозавров</h1>
+    </div>
+    <div class="main-section">
+        <div class="button-section-user">
+            <form class="btn1" action="{{ url_for('bz') }}" method="get">
+                <button type="submit" value='bz'
+                                    name="bz_button">Редактор базы знаний</button>
+            </form>
+            <form class="btn2" action="{{ url_for('solver') }}" method="get">
+                <button type="submit" value='solver'
+                                    name="solver_button">Классификатор</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
