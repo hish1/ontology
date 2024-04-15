@@ -213,6 +213,37 @@ def bz():
 
         data_possible_sc = get_possible_value_sc(session['feature_id'], conn)
         data_possible_num = get_possible_value_num(session['feature_id'], conn)
+
+    elif request.values.get('types_min_value_add'):
+        selected_button = 'types_values'
+        type_id = int(session.get('type_id'))
+        data_type_features = get_type_features(type_id, conn)
+        feature_id = int(session.get('feature_id'))
+
+        val = int(request.values.get('types_min_value_add'))
+        add_value(val, type_id, feature_id, conn)
+        val = int(request.values.get('types_max_value_add'))
+        add_value(val, type_id, feature_id, conn)
+        data_type_values = get_type_values(type_id, feature_id, conn)
+
+        data_possible_sc = get_possible_value_sc(session['feature_id'], conn)
+        data_possible_num = get_possible_value_num(session['feature_id'], conn)
+
+    elif request.values.get('types_values_num_del'):
+        selected_button = 'types_values'
+        type_id = int(session.get('type_id'))
+        data_type_features = get_type_features(type_id, conn)
+        feature_id = int(session.get('feature_id'))
+
+        val = int(request.values.get('min'))
+        del_value(val, conn)
+        val = int(request.values.get('max'))
+        del_value(val, conn)
+        data_type_values = get_type_values(type_id, feature_id, conn)
+
+        data_possible_sc = get_possible_value_sc(session['feature_id'], conn)
+        data_possible_num = get_possible_value_num(session['feature_id'], conn)
+
         
 
     # ------------------------- 7й таб -------------------------
@@ -235,9 +266,11 @@ def bz():
         data_possible_num = data_possible_num,
         data_type_features = data_type_features,
         data_type_values = data_type_values,
+
         empty_types = empty_types,
         empty_features = empty_features,
         empty_all = empty_all,
+
         feature_sc_id = session['feature_sc_id'],
         feature_num_id = session['feature_num_id'],
         type_id = session['type_id'],
