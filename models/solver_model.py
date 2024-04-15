@@ -11,7 +11,8 @@ def get_features_num(conn):
     return pandas.read_sql(f'''select * from feature where type=1''', conn)
 
 def get_features_id(id, conn):
-    return pandas.read_sql(f'''select * from feature where feature_id={id}''', conn)
+    return pandas.read_sql(f'''select * from feature 
+                           where feature_id={id}''', conn)
 def get_features_sc_id(id, conn):
     return pandas.read_sql(f'''select * from feature where type=0 and feature_id={id}''', conn)
 def get_features_num_id(id, conn):
