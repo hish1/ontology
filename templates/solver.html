@@ -53,11 +53,10 @@
                 <p>Список значений</p>
                 {% if not data_possible_sc.empty %}
                     {{ render_values(data_possible_sc, checked_id) }}
-                {% else %}
-                    {% if not data_possible_num.empty %}
-                        {{ render_values(data_possible_num, checked_id) }}
                     {% endif %}
-                {% endif %}
+                    {% if not data_possible_num.empty %}
+                        {{ render_num(data_possible_num, checked_id) }}
+                    {% endif %}
                     
             </div>
             <div> 
@@ -68,6 +67,19 @@
             </div>
         </div>
     {% endmacro %}
+        
+    {% macro render_num(data, checked_id) %}
+        <div class="num">
+            {% set a = min(data.loc[1, data.dtypes.index[1]], data.loc[0, data.dtypes.index[1]]) %}
+            {% set b = max(data.loc[1, data.dtypes.index[1]], data.loc[0, data.dtypes.index[1]]) %}
+            <form action = '' method ="get" class="choose-num">
+                <label>Выберите значение:</label>
+                <input type="range" {% if checked_id!=-1 %} value={{checked_id}} {% else %} value={{a}} {% endif %} name="types_num_value" id="" min={{a}} max={{b}} onchange="this.form.submit()" oninput="this.nextElementSibling.value = this.value">
+                <output> {% if checked_id!=-1 %} {{checked_id}} {% else %} {{a}} {% endif %}</output>
+            </form>
+        </div>
+    {% endmacro %}
+
     
     {% macro render_result1(result_good, result_bad) %}
         <div>
@@ -81,6 +93,7 @@
             <p>{{ result }}</p>
         </div>
     {% endmacro %}
+
     {% macro render_result(result_good, result_bad) %}
         <div class="result">
             <div>
@@ -94,9 +107,9 @@
                     <p>{{i}}</p>
                 {% endfor %}
             </div>
-            <form class="btn2" action="{{ url_for('user') }}" method="get">
-                <button type="submit" value='user'
-                                    name="user_button">Назад</button>
+            <form class="btn2" action="{{ url_for('solver') }}" method="get">
+                <button type="submit" value='solver'
+                                    name="solver_button">Еще раз</button>
             </form>
         </div>
     {% endmacro %}
@@ -104,7 +117,7 @@
 
 </head>
 <body>
-    <h1>Классификатор динозавров</h1>
+    <h1>Классификатор</h1>
     <div class="main-section">
         {% if flag %}
             <p>Результат</p>
@@ -113,5 +126,9 @@
             {{ render_features(data_features, data_possible_sc, data_possible_num, feature_id, checked_id) }}
         {% endif %}
     </div>
+    <form class="btn2" action="{{ url_for('user') }}" method="get">
+        <button type="submit" value='user'
+                            name="user_button">Назад</button>
+    </form>
 </body>
 </html>
