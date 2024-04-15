@@ -47,6 +47,8 @@
                 {% set b = max(data.loc[1, data.dtypes.index[1]], data.loc[0, data.dtypes.index[1]]) %}
                 <form action = '' method ="get" class="list">
                     <p>[{{a}}, {{b}}]</p>
+                    <input type="hidden" name='min' value="{{data.loc[0,data.dtypes.index[0]]|int}}" >
+                    <input type="hidden" name='max' value="{{data.loc[1,data.dtypes.index[0]]|int}}" >
                     <input type="hidden" name='{{str}}' value="{{len(data)}}" >
                     <input type="submit" class="btn-delete" {% if is_add %} value="+" {% else %} value="-" {%endif %}>
                 </form>
@@ -225,21 +227,47 @@
                     <p>Список_значений</p>
                     <p>Список_выбранных_значений</p>
 
-                    {% if not data_possible_sc.empty or not data_possible_num.empty %}
+                    {% if not data_possible_sc.empty %}
                         {{ render_values(data_possible_sc, 'types_values_add', True) }}
-                        {{ render_values_num(data_possible_num, 'types_values_add', True) }}
-                        {% if not data_type_values.empty %}
-                            {% if data_type_values.loc[0, 'type']|int == 1 %}
-                                {{ render_values_num(data_type_values, 'types_values_del', False) }}
-                            {% else %}
-                                {{ render_values(data_type_values, 'types_values_del', False) }}
-                            {% endif %}
+                    {% else %}
+                        {% if not data_possible_num.empty %}
+                            {{ render_num(data_possible_num, 'types_values_add', data_type_values.empty) }}
+                        {% else %}
+                            <p>Нет значений</p>
+                        {% endif %}
+                    {% endif %}
+                        
+                    {% if not data_type_values.empty %}
+                        {% if data_type_values.loc[0, 'type']|int == 1 %}
+                            {{ render_values_num(data_type_values, 'types_values_num_del', False) }}
+                        {% else %}
+                            {{ render_values(data_type_values, 'types_values_del', False) }}
                         {% endif %}
                     {% else %}
-                        <p>Нет значений</p>
+                        <div></div>
                     {% endif %}
                 </div>
             {% endif %}
+        {% endif %}
+    {% endmacro %}
+    
+    {% macro render_num(data, str, empty) %}
+        {% if len(data) != 0 and empty %}
+            <div class="num">
+                {% set a = min(data.loc[1, data.dtypes.index[1]], data.loc[0, data.dtypes.index[1]]) %}
+                {% set b = max(data.loc[1, data.dtypes.index[1]], data.loc[0, data.dtypes.index[1]]) %}
+                <form action = '' method ="get" class="add-num">
+                    <label>Минимальное значение:</label>
+                    <input type="range" value={{a}} name="types_min_value_add" id="" min={{a}} max={{b}} oninput="this.nextElementSibling.value = this.value">
+                    <output>{{a}}</output>
+                    <label>Максимальное значение:</label>
+                    <input type="range" value={{b}} name="types_max_value_add" id="" min={{a}} max={{b}} oninput="this.nextElementSibling.value = this.value">
+                    <output>{{b}}</output>
+                    <input type="submit" value="Добавить" class="num-btn">
+                </form>
+            </div>
+        {% else %}
+            <div></div>
         {% endif %}
     {% endmacro %}
 
