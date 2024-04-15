@@ -710,3 +710,37 @@ input:disabled:hover {
     width: 40%;
     margin: 10px auto;
 }
+.solver{
+    display: grid;
+    grid-template-columns: 1fr ;
+    grid-template-rows: min-content auto min-content;
+    height: 60%;
+    justify-content: center;
+    align-items: center;
+}
+.solver select{
+    height: 70%;
+    width: 60%;
+}
+.solver p{
+    margin: 0 auto;
+    text-align: center;
+}
+.values{
+    margin: 0 auto;
+    text-align: center;
+}
+.result{
+    display: grid;
+    grid-template-columns: 1fr ;
+    grid-template-rows: auto auto min-content;
+    grid-row-gap: 20px;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    width: 80%;
+}
+.result div{
+    background: #D6D6D6;
+    border-radius: 10px;
+}

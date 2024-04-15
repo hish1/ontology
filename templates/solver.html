@@ -29,40 +29,47 @@
         {% endfor %}
     {% endmacro %}
 
-    {% macro render_values(data, str) %}
-        {% if not data.empty %}
-            <form action = '' method ="get">
-                {% for i in range(len(data)) %}
-                    <input type="hidden" name='value_checker' value='{{data.loc[i,data.dtypes.index[0]]|int}}'>
-                    <input type="checkbox" name="{{str}}" value="{{data.loc[i, data.dtypes.index[1]]|string}}">
-                {% endfor %}
-                <input type="submit" value="Сохранить">
-            </form>
-        {% endif %}
+    {% macro render_values(data, checked_id) %}
+        <form action = '' method ="get" class="values">
+            {% for i in range(len(data)) %}
+                {% set v = data.loc[i, data.dtypes.index[0]]|int %}
+                <input type="radio" id="val" name="value_choose" value="{{v}}" onchange="this.form.submit()" {% if v==checked_id %} checked {% endif %} >
+                <label for="val">{{data.loc[i, data.dtypes.index[1]]|string}}</label><br>
+            {% endfor %}
+        </form>
     {% endmacro %}
 
-    {% macro render_features(data_checked, data_possible_sc, data_possible_num, feature_id) %}
-        <div class="">
+    {% macro render_features(data_features, data_possible_sc, data_possible_num, feature_id, checked_id) %}
+        <div class="solver">
             <div class="">
                 <form action="" method="get" class="">
-                    <p>Признак: </p>
+                    <p>Признак: 
                     <select name='feature_selector' onchange="this.form.submit()">
-                        {{ render_select(data_checked, feature_id) }}
-                    </select>
+                        {{ render_select(data_features, feature_id) }}
+                    </select></p>
                 </form>
             </div>
             <div>
                 <p>Список значений</p>
-                {{ render_values(data_possible_sc, 'feature_value_check') }}
+                {% if not data_possible_sc.empty %}
+                    {{ render_values(data_possible_sc, checked_id) }}
+                {% else %}
+                    {% if not data_possible_num.empty %}
+                        {{ render_values(data_possible_num, checked_id) }}
+                    {% endif %}
+                {% endif %}
+                    
             </div>
             <div> 
-                <input type="hidden" name="get_result">
-                <input type="submit" value="Результат">
+                <form action="" method="get" class="">
+                    <input type="hidden" name="get_result" value="1">
+                    <input type="submit" value="Результат">
+                </form>
             </div>
         </div>
     {% endmacro %}
     
-    {% macro render_result(data_all, result) %}
+    {% macro render_result1(result_good, result_bad) %}
         <div>
             <p>Введенные данные:</p>
             <ul type="none">
@@ -73,7 +80,25 @@
             <p>Вывод:</p>
             <p>{{ result }}</p>
         </div>
-
+    {% endmacro %}
+    {% macro render_result(result_good, result_bad) %}
+        <div class="result">
+            <div>
+                <p>Подходящие классы динозавров:</p>
+                {% for i in result_good %}
+                    <p>{{i}}</p>
+                {% endfor %}
+            </div>
+            <div>
+                {% for i in result_bad %}
+                    <p>{{i}}</p>
+                {% endfor %}
+            </div>
+            <form class="btn2" action="{{ url_for('user') }}" method="get">
+                <button type="submit" value='user'
+                                    name="user_button">Назад</button>
+            </form>
+        </div>
     {% endmacro %}
 
 
@@ -81,14 +106,11 @@
 <body>
     <h1>Классификатор динозавров</h1>
     <div class="main-section">
-        {% if len(data_checked) == 0 %}
-            {{ render_select_feature(data_features) }}
+        {% if flag %}
+            <p>Результат</p>
+            {{ render_result(result_good, result_bad) }}
         {% else %}
-            {% if False %}
-                {{ render_result(data_all, result) }}
-            {% else %}
-                {{ render_features(data_checked, data_possible_sc, data_possible_num, feature_id) }}
-            {% endif %}
+            {{ render_features(data_features, data_possible_sc, data_possible_num, feature_id, checked_id) }}
         {% endif %}
     </div>
 </body>
