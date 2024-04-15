@@ -94,6 +94,18 @@ def del_value(id, conn):
     cur.execute(sql)
     conn.commit()
 
+def add_num_value(value, type_id, feature_id, conn):
+    cur = conn.cursor()
+    buf = f'(select features_list_id from features_list where type_id={type_id} and feature_id={feature_id})'
+    sql = f"insert into value (value, features_list_id) values ('{value}', {buf});"
+    cur.execute(sql)
+    conn.commit()
+def del_num_value(id, conn):
+    cur = conn.cursor()
+    sql = f"delete from value where value_id='{id}';"
+    cur.execute(sql)
+    conn.commit()
+
     
 def get_empty_types(conn):
     return pandas.read_sql(
